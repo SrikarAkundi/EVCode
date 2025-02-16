@@ -1,0 +1,38 @@
+int motorVOLT = 10;
+int motorGND = 9;
+
+#define ENCODER_PIN_A 2
+#define ENCODER_PIN_B 3
+
+volatile long pulseCount = 0;
+float distancePerPulse = (PI * 7.035) / 222;
+
+void countPulses() {
+    pulseCount++;  
+}
+
+void setup() {
+    Serial.begin(9600);
+    pinMode(motorGND, OUTPUT);
+    pinMode(motorVOLT, OUTPUT);
+    pinMode(ENCODER_PIN_A, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(ENCODER_PIN_A), countPulses, RISING);
+
+    analogWrite(motorVOLT, 255);
+    analogWrite(motorGND, 0);
+}
+
+void loop() {
+    float distanceTraveled = pulseCount * distancePerPulse;
+
+    Serial.print("Pulses: ");
+    Serial.print(pulseCount);
+    Serial.print(" | Distance: ");
+    Serial.print(distanceTraveled);
+    Serial.println(" cm");
+
+    if (distanceTraveled >= 300){
+        analogWrite(motorVOLT, 0);
+        analogWrite(motorGND, 0);
+    }
+}
